@@ -33,11 +33,9 @@ namespace NServiceBus.Unicast
         readonly PipelineBase<OutgoingContext> outgoing;
         readonly bool sendOnlyMode;
         readonly Address sendLocalAddress;
-        readonly StaticOutgoingMessageHeaders staticOutgoingMessageHeaders;
 
         public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager, 
-            MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter,
-            StaticOutgoingMessageHeaders staticOutgoingMessageHeaders, CallbackMessageLookup callbackMessageLookup)
+            MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter, CallbackMessageLookup callbackMessageLookup)
         {
             this.messageMapper = messageMapper;
             this.contextGetter = contextGetter;
@@ -48,7 +46,6 @@ namespace NServiceBus.Unicast
             this.transportDefinition = transportDefinition;
             this.messageSender = messageSender;
             this.messageRouter = messageRouter;
-            this.staticOutgoingMessageHeaders = staticOutgoingMessageHeaders;
             this.callbackMessageLookup = callbackMessageLookup;
             outgoing = new PipelineBase<OutgoingContext>(builder,settings.Get<PipelineModifications>());
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
@@ -566,17 +563,6 @@ namespace NServiceBus.Unicast
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             ((HandlingStageBehavior.Context)context).DoNotInvokeAnyMoreHandlers();
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.OutgoingHeaders"/>
-        /// </summary>
-        public IDictionary<string, string> OutgoingHeaders
-        {
-            get
-            {
-                return staticOutgoingMessageHeaders.OutgoingHeaders;
-            }
         }
 
         /// <summary>
