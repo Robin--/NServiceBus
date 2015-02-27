@@ -35,7 +35,7 @@ namespace NServiceBus.Unicast
         readonly string sendLocalAddress;
         readonly StaticOutgoingMessageHeaders staticOutgoingMessageHeaders;
 
-        public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager, 
+        public ContextualBus(Func<BehaviorContext> contextGetter, IMessageMapper messageMapper, IBuilder builder, Configure configure, IManageSubscriptions subscriptionManager,
             MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings, TransportDefinition transportDefinition, ISendMessages messageSender, StaticMessageRouter messageRouter,
             StaticOutgoingMessageHeaders staticOutgoingMessageHeaders, CallbackMessageLookup callbackMessageLookup)
         {
@@ -50,7 +50,7 @@ namespace NServiceBus.Unicast
             this.messageRouter = messageRouter;
             this.staticOutgoingMessageHeaders = staticOutgoingMessageHeaders;
             this.callbackMessageLookup = callbackMessageLookup;
-            outgoing = new PipelineBase<OutgoingContext>(builder,settings.Get<PipelineModifications>());
+            outgoing = new PipelineBase<OutgoingContext>(builder, settings.Get<PipelineModifications>());
             sendOnlyMode = settings.Get<bool>("Endpoint.SendOnly");
             //if we're a worker, send to the distributor data bus
             if (settings.GetOrDefault<bool>("Worker.Enabled"))
@@ -150,7 +150,7 @@ namespace NServiceBus.Unicast
         public Func<object, string, string> GetHeaderAction { get; internal set; }
 
         /// <summary>
-        /// Sets whether or not the return address of a received message 
+        /// Sets whether or not the return address of a received message
         /// should be propagated when the message is forwarded. This field is
         /// used primarily for the Distributor.
         /// </summary>
@@ -206,7 +206,6 @@ namespace NServiceBus.Unicast
 
             AssertHasLocalAddress();
 
-
             if (transportDefinition.HasSupportForCentralizedPubSub)
             {
                 // We are dealing with a brokered transport wired for auto pub/sub.
@@ -251,7 +250,6 @@ namespace NServiceBus.Unicast
             Unsubscribe(typeof(T));
         }
 
-
         /// <summary>
         /// <see cref="IBus.Unsubscribe(Type)"/>
         /// </summary>
@@ -266,7 +264,6 @@ namespace NServiceBus.Unicast
 
             AssertHasLocalAddress();
 
-
             if (transportDefinition.HasSupportForCentralizedPubSub)
             {
                 // We are dealing with a brokered transport wired for auto pub/sub.
@@ -280,7 +277,6 @@ namespace NServiceBus.Unicast
             {
                 subscriptionManager.Unsubscribe(messageType, destination);
             }
-
         }
 
         /// <summary>
@@ -415,7 +411,7 @@ namespace NServiceBus.Unicast
         {
             return SendMessage(new SendOptions(destination), messageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
-        
+
         /// <summary>
         /// <see cref="ISendOnlyBus.Send(string,object)"/>
         /// </summary>
@@ -423,7 +419,7 @@ namespace NServiceBus.Unicast
         {
             return SendMessage(new SendOptions(destination), messageFactory.Create(message));
         }
-        
+
         /// <summary>
         /// <see cref="ISendOnlyBus.Send{T}(string,string,Action{T})"/>
         /// </summary>
@@ -478,7 +474,6 @@ namespace NServiceBus.Unicast
             return SendMessage(options, messageFactory.Create(message));
         }
 
-
         ICallback SendMessage(SendOptions sendOptions, LogicalMessage message)
         {
             var context = InvokeSendPipeline(sendOptions, message);
@@ -504,11 +499,10 @@ namespace NServiceBus.Unicast
             return outgoing.Invoke(outgoingContext);
         }
 
-
         ICallback SetupCallback(string transportMessageId)
         {
             var result = new Callback(transportMessageId, sendOnlyMode);
-            result.Registered += (sender, args) => callbackMessageLookup.RegisterResult(args.MessageId, args.Result);
+            result.Registered += (sender, args) => callbackMessageLookup.RegisterResult(args.MessageId, args.TaskCompletionSource);
 
             return result;
         }
@@ -576,8 +570,6 @@ namespace NServiceBus.Unicast
             return destination;
         }
 
-        
-
         TransportMessage MessageBeingProcessed
         {
             get
@@ -592,6 +584,5 @@ namespace NServiceBus.Unicast
                 return current;
             }
         }
-
     }
 }
