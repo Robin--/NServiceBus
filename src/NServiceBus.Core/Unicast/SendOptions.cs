@@ -60,5 +60,8 @@ namespace NServiceBus.Unicast
         /// Address where to send this message
         /// </summary>
         public string Destination { get; set; }
+
+
+
     }
 }
